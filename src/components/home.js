@@ -12,11 +12,12 @@ export default class Home extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            ip: '',
-            port: '',
+            ip: '1.2.3.4',
+            port: '567',
             response: ' ',
             contect: 'Connect',
             number: 0,
+            cmd: ''
         };
         this.timer = null;
         this.addOne = this.addOne.bind(this);
@@ -30,9 +31,9 @@ export default class Home extends Component {
         });
     }
     addOne() {
-        console.log('test1');
+        console.log('test1' + this.state.cmd);
         this.timer = setTimeout(this.addOne, 200);
-        fetch("http://192.168.1.23/cmd/top"
+        fetch("http://192.168.1.23/cmd/" + this.state.cmd
             , {
                 method: 'post',
                 dataType: 'json',
@@ -45,21 +46,22 @@ export default class Home extends Component {
             .then((responseJson) => {
                 console.log(responseJson['cmd']);
                 this.setState({
-                    console: "Request: " + "top" + "   Response: " +
+                    console: "Request: " + 'cmd' + "   Response: " +
                         responseJson['cmd'] + "\n"
                         + this.state.console
                 });
             }
             ).catch((e) => {
                 this.setState({
-                    console: "Request: " + "top" + "   Response: NG" + "\n"
+                    console: "Request: " + 'cmd' + "   Response: NG" + "\n"
                         + this.state.console
                 });
             })
     }
     stopTimer() {
         clearTimeout(this.timer);
-      }
+    }
+
 
     render() {
         return (
@@ -68,13 +70,20 @@ export default class Home extends Component {
                 <TextInput
                     style={{ height: 40, width: 150 }}
                     placeholder="Ip address"
-                    onChangeText={(ip) => this.setState({ ip })}
+                    onChangeText={(ip) => {
+                        this.setState({ ip });
+                        this.props.setIp(ip);
+                    }}
                     value={this.state.ip}
                 />
                 <TextInput
                     style={{ height: 40, width: 150 }}
                     placeholder="Port"
-                    onChangeText={(port) => this.setState({ port })}
+                    onChangeText={(port) => {
+                        this.setState({ port })
+                        this.props.setIp(port)
+                    }}
+
                     value={this.state.port}
                 />
                 <TouchableOpacity onPress={this.onPressButton.bind(this)}>
@@ -83,11 +92,16 @@ export default class Home extends Component {
                     </Text>
                 </TouchableOpacity>
                 <Text style={styles.connect}>
-                Status: {this.state.response}
+                    Status: {this.state.response}
                 </Text>
-                <TouchableOpacity onPressIn={this.addOne} onPressOut={this.stopTimer}>
-                <Text style={styles.connect}>
-                Test
+                <TouchableOpacity
+                    onPressIn={() => {
+                        this.setState({ cmd: 'top' })
+                        this.addOne()
+                    }}
+                    onPressOut={this.stopTimer}>
+                    <Text style={styles.connect}>
+                        Test
                 </Text>
                 </TouchableOpacity>
             </View>

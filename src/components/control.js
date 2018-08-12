@@ -5,7 +5,9 @@ import {
     StyleSheet,
     Text,
     View,
-    Slider
+    Slider,
+    Image,
+    Button
 } from 'react-native';
 
 export default class Control extends Component {
@@ -19,42 +21,19 @@ export default class Control extends Component {
             console: "",
             status: "",
             valueSlider: 0,
+            cmd: '',
         }
+        this.timer = null;
+        this.addCmd = this.addCmd.bind(this);
+        this.stopTimer = this.stopTimer.bind(this);
     }
-    LEFT() {
-        console.log("left");
-        return fetch("http://192.168.1.23/cmd/left"
-            , {
-                method: 'post',
-                dataType: 'json',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-            })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson['cmd']);
-                this.setState({
-                    console: "Request: " + "left" + "   Response: " +
-                        responseJson['cmd'] + "\n"
-                        + this.state.console
-                });
-            }
-            ).catch((e) => {
-                console.log("error");
-                this.setState({
+    addCmd() {
+        var cmd = this.state.cmd;
+        console.log('test1' + cmd);
+        if (this.state.cmd !== 'stop' && this.state.cmd.substr(0, 5) !== 'speed')
+            this.timer = setTimeout(this.addCmd, 100);
 
-                    console: "Request: " + "left" + "   Response: NG" + "\n"
-                        + this.state.console
-                });
-                return console.log("error");
-            })
-
-    }
-    TOP() {
-        console.log("top");
-        fetch("http://192.168.1.23/cmd/top"
+        fetch("http://192.168.1.23/cmd/" + cmd
             , {
                 method: 'post',
                 dataType: 'json',
@@ -67,163 +46,71 @@ export default class Control extends Component {
             .then((responseJson) => {
                 console.log(responseJson['cmd']);
                 this.setState({
-                    console: "Request: " + "top" + "   Response: " +
+                    console: "Request: " + cmd + "   Response: " +
                         responseJson['cmd'] + "\n"
                         + this.state.console
                 });
             }
             ).catch((e) => {
                 this.setState({
-                    console: "Request: " + "top" + "   Response: NG" + "\n"
+                    console: "Request: " + cmd + "   Response: NG" + "\n"
                         + this.state.console
                 });
             })
+    }
+    stopTimer() {
+        clearTimeout(this.timer);
+    }
 
-    }
-    DOWN() {
-        console.log("down");
-        fetch("http://192.168.1.23/cmd/down"
-            , {
-                method: 'post',
-                dataType: 'json',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson['cmd']);
-                this.setState({
-                    console: "Request: " + "down" + "   Response: " +
-                        responseJson["cmd"] + "\n"
-                        + this.state.console
-                });
-            }
-            ).catch((e) => {
-                this.setState({
-                    console: "Request: " + "down" + "   Response: NG" + "\n"
-                        + this.state.console
-                });
-            })
-    }
-    RIGHT() {
-        console.log("right");
-        fetch("http://192.168.1.23/cmd/right"
-            , {
-                method: 'post',
-                dataType: 'json',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson['cmd']);
-                this.setState({
-                    console: "Request: " + "right" + "   Response: " +
-                        responseJson["cmd"] + "\n"
-                        + this.state.console
-                });
-            }
-            ).catch((e) => {
-                this.setState({
-                    console: "Request: " + "right" + "   Response: NG" + "\n"
-                        + this.state.console
-                });
-            })
-    }
-    STOP() {
-        console.log("stop");
-        fetch("http://192.168.1.23/cmd/stop"
-            , {
-                method: 'post',
-                dataType: 'json',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson['cmd']);
-                this.setState({
-                    console: "Request: " + "stop" + "   Response: " +
-                        responseJson["cmd"] + "\n"
-                        + this.state.console
-                });
-            }
-            ).catch((e) => {
-                this.setState({
-                    console: "Request: " + "stop" + "   Response: NG" + "\n"
-                        + this.state.console
-                });
-            })
-    }
-    sliderChange(val) {
-
-        console.log(Number.parseInt(val));
-        console.log("speed");
-        return fetch("http://192.168.1.23/cmd/speed/" + Number.parseInt(val)
-            , {
-                method: 'post',
-                dataType: 'json',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    cmd: 'cmd left',
-                    speed: '199',
-                  }),
-            })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson['cmd']);
-                this.setState({
-                    console: "Request: " + "speed" + "   Response: " +
-                        responseJson['cmd'] + "\n"
-                        + this.state.console
-                });
-            }
-            ).catch((e) => {
-                console.log("error");
-                this.setState({
-
-                    console: "Request: " + "speed" + "   Response: NG" + "\n"
-                        + this.state.console
-                });
-                return console.log("error");
-            })
-
-    }
     render() {
         return (
-            <View style={{ flex: 1, flexDirection: "row" }}>
-                <View style={{ flex: 1 }}>
+            <View style={{ flex: 1, flexDirection: "row", backgroundColor: '#babcc0', }}>
+            {/* <View style={{ flex: 1,  backgroundColor: '#babcc0'
+                
+                }}>
+            <Slider 
+                    style={styles.slider}
+                    trackStyle={customStyles2.track}
+                    thumbStyle={customStyles2.thumb}
+                    maximumValue={100.00}
+                    minimumValue={0.00}
+                    value={this.state.valueSlider}
+                    onValueChange={val => this.setState({ valueSlider: val })}
+                    onSlidingComplete={val =>
+                        this.setState({ cmd: 'speed/' + Number.parseInt(val) },
+                            () => this.addCmd(this.state.cmd))}
+                ></Slider>
+            </View> */}
+            
+
+            
+                <View style={{ flex: 4 }}>
                     <TouchableOpacity style={styles.left}
-                        onPress={() => { this.LEFT() }}>
-                        <Text style = {{fontWeight: 'bold'}}>
-                        LEFT</Text>
+                        onPressIn={() => {
+                            this.setState({ cmd: 'left' }, () => this.addCmd())
+                        }}
+                        onPressOut={this.stopTimer}>
+                        <Image source={require('../images/left.png')}
+                        />
+                        <Text style={{ fontWeight: 'bold' }} >
+                            LEFT
+                        </Text>
+                        {/* <Image source={require('../images/left.png')} /> */}
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.top}
-                        onPress={() => { this.TOP() }}>
-                        <Text style = {{fontWeight: 'bold'}} >
-                            TOP
+                        onPressIn={() => {
+                            this.setState({ cmd: 'top' }, () => this.addCmd(this.state.cmd))
+
+                        }}
+                        onPressOut={this.stopTimer}>
+                        <Image source={require('../images/up.png')} />
+                        <Text style={{ fontWeight: 'bold' }} >
+                            UP
                         </Text>
                     </TouchableOpacity>
-                    <Slider style={{ flex: 1 , backgroundColor:"#b3d9ff"}}
-                        maximumValue={100.00}
-                        minimumValue={0.00}
-                        value={this.state.valueSlider}
-                        onValueChange={val => this.setState({ valueSlider: val })}
-                        onSlidingComplete={val => this.sliderChange(val)}
-                    ></Slider>
                 </View>
-                <View style={{ flex: 1 }}>
-                    <View style={styles.console}
-                        onPress={() => { this.TOP() }}>
+                <View style={{ flex: 5 }}>
+                    <View style={styles.console}>
                         <Text style={{ color: "white" }}>
                             CONSOLE:
                         </Text>
@@ -232,39 +119,77 @@ export default class Control extends Component {
                         </Text>
                     </View>
                     <TouchableOpacity style={styles.stop}
-                        onPress={() => { this.STOP() }}>
-                        <Text style = {{fontWeight: 'bold'}}>
+                        onPressIn={() => {
+                            this.setState({ cmd: 'stop' }, () => this.addCmd(this.state.cmd))
+                        }}
+                        onPressOut={this.stopTimer}>
+                        <Image source={require('../images/stop.png')} />
+                        <Text style={{ fontWeight: 'bold' }}>
                             STOP
                         </Text>
                     </TouchableOpacity>
-                    <View style = {{flex: 1 ,flexDirection: "row"}} >
-                    <Text style={{ flex: 1 , backgroundColor:"blue"}}>
-                    AUTO
+                    <View style={{
+                        flex: 1, flexDirection: "row"
+                        , justifyContent: "center",
+                        alignItems: "center",
+                        margin: 40
+                    }} >
+                        <Button
+                            onPress={()=>{}}
+                            title="Learn More"
+                            color="#841584"
+                            accessibilityLabel="Learn more about this purple button"
+                        />
+                        <Button
+                            onPress={()=>{}}
+                            
+                            title="Learn More"
+                            color="#841584"
+                            accessibilityLabel="Learn more about this purple button"
+                        />
+                        {/* <Text style={{ flex: 1, backgroundColor: "blue" }}>
+                            AUTO
                     </Text>
-                    <Text style={{ flex: 1 , backgroundColor:"red"}}>
-                     MANUAL
-                    </Text>
+                        <Text style={{ flex: 1, backgroundColor: "red" }}>
+                            MANUAL
+                    </Text> */}
                     </View>
                 </View>
-                <View style={{ flex: 1 }}>
+                <View style={{ flex: 4 }}>
                     <TouchableOpacity style={styles.right}
-                        onPress={() => { this.RIGHT() }}>
-                        <Text style = {{fontWeight: 'bold'}} >RIGHT</Text>
+                        onPressIn={() => {
+                            this.setState({ cmd: 'right' }, () => this.addCmd(this.state.cmd))
+                        }}
+                        onPressOut={this.stopTimer}>
+                        <Image source={require('../images/right.png')} />
+                        <Text style={{ fontWeight: 'bold' }} >RIGHT</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.down}
-                        onPress={() => { this.DOWN() }}>
-                        <Text style = {{fontWeight: 'bold'}}>
+                        onPressIn={(down) => {
+                            this.setState({ cmd: 'down' }, () => this.addCmd(this.state.cmd))
+                        }}
+                        onPressOut={this.stopTimer}>
+                        <Image source={require('../images/down.png')} />
+                        <Text style={{ fontWeight: 'bold' }}>
                             DOWN
                         </Text>
                     </TouchableOpacity>
-                    <Slider style={{ flex: 1 , backgroundColor:'yellow'}} 
-                        maximumValue={100.00}
-                        minimumValue={0.00}
-                        value={this.state.valueSlider}
-                        onValueChange={val => this.setState({ valueSlider: val })}
-                        onSlidingComplete={val => this.sliderChange(val)}
-                    ></Slider>
-                </View>
+                </View >
+                {/* <View style={{ flex: 1,   backgroundColor: '#babcc0', }}>
+                <Slider 
+                    style={styles.slider}
+                    // trackStyle={customStyles2.track}
+                    // thumbStyle={customStyles2.thumb}
+                    
+                    maximumValue={100.00}
+                    minimumValue={0.00}
+                    value={this.state.valueSlider}
+                    onValueChange={val => this.setState({ valueSlider: val })}
+                    onSlidingComplete={val =>
+                        this.setState({ cmd: 'speed/' + Number.parseInt(val) },
+                            () => this.addCmd(this.state.cmd))}
+                ></Slider>
+                </View> */}
             </View>
         );
     }
@@ -273,36 +198,83 @@ export default class Control extends Component {
 const styles = StyleSheet.create({
     left: {
         flex: 2,
-        backgroundColor: 'yellow',
+        // backgroundColor: '#babcc0',
         justifyContent: 'center',
         alignItems: 'center',
+        // borderWidth:1
     },
     top: {
         flex: 2,
-        backgroundColor: 'red',
+        // backgroundColor: 'red',
         justifyContent: 'center',
         alignItems: 'center',
+        // borderWidth:1
     },
     down: {
         flex: 2,
-        backgroundColor: 'green',
+        // backgroundColor: 'green',
         justifyContent: 'center',
         alignItems: 'center',
+        // borderWidth:1
     },
     right: {
         flex: 2,
-        backgroundColor: 'pink',
+        // backgroundColor: 'pink',
         justifyContent: 'center',
         alignItems: 'center',
+        // borderWidth:1
     },
     stop: {
-        flex: 2,
-        backgroundColor: '#c68c53',
+        flex: 3,
+        // backgroundColor: '#c68c53',
+        justifyContent: 'center',
+        alignItems: 'center',
+        // borderWidth:1
+    },
+    console: {
+        flex: 3,
+        backgroundColor: 'black',
+    },
+    slider: {
+        marginRight: -100,
+        marginLeft: -100,
+        // width: 250,
+        // height: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        flex: 1, 
+        transform: [
+            { rotateZ: '-90deg' },
+        ],
+        backgroundColor: '#babcc0'
+    },
+    track: {
+        // height: 10,
+        // borderRadius: 5,
+        backgroundColor: 'white',
         justifyContent: 'center',
         alignItems: 'center',
     },
-    console: {
-        flex: 2,
-        backgroundColor: 'black',
+    thumb: {
+        // width: 10,
+        // height: 30,
+        // borderRadius: 5,
+        backgroundColor: '#eb6e1b',
+        justifyContent: 'center',
+        alignItems: 'center',
+    }
+});
+var customStyles2 = StyleSheet.create({
+    track: {
+        height: 4,
+        borderRadius: 2,
     },
+    thumb: {
+        width: 10,
+        height: 10,
+        borderRadius: 30 / 2,
+        backgroundColor: 'white',
+        borderColor: '#30a935',
+        borderWidth: 2,
+    }
 });
