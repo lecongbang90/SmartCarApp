@@ -9,8 +9,9 @@ import {
     Image,
     Button
 } from 'react-native';
+import { connect } from 'react-redux';
 
-export default class Control extends Component {
+class Control extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -27,13 +28,17 @@ export default class Control extends Component {
         this.addCmd = this.addCmd.bind(this);
         this.stopTimer = this.stopTimer.bind(this);
     }
-    addCmd() {
-        var cmd = this.state.cmd;
-        console.log('test1' + cmd);
-        if (this.state.cmd !== 'stop' && this.state.cmd.substr(0, 5) !== 'speed')
-            this.timer = setTimeout(this.addCmd, 100);
+    addCmd(cmd = this.state.cmd) {
+        
+        console.log('http://' + this.props.ipValue + '/cmd/' + cmd);
+        this.setState({
+            console: ' Request: ' + 'http://' + this.props.ipValue + '/cmd/' + cmd + "\n"
+                + this.state.console
+        });
+        if (cmd !== 'stop' && cmd.substr(0, 5) !== 'speed')
+            this.timer = setTimeout(this.addCmd, 200);
 
-        fetch("http://192.168.1.23/cmd/" + cmd
+        fetch('http://' + this.props.ipValue + '/cmd/' + cmd
             , {
                 method: 'post',
                 dataType: 'json',
@@ -46,7 +51,7 @@ export default class Control extends Component {
             .then((responseJson) => {
                 console.log(responseJson['cmd']);
                 this.setState({
-                    console: "Request: " + cmd + "   Response: " +
+                    console: "   Response: " +
                         responseJson['cmd'] + "\n"
                         + this.state.console
                 });
@@ -64,7 +69,8 @@ export default class Control extends Component {
 
     render() {
         return (
-            <View style={{ flex: 1, flexDirection: "row", backgroundColor: '#babcc0', }}>
+            <View style={{ flex: 1, flexDirection: "row", backgroundColor: 'black'}}>
+            <View style={{ flex: 1, flexDirection: "row", backgroundColor: '#babcc0', borderRadius: 20}}>
             {/* <View style={{ flex: 1,  backgroundColor: '#babcc0'
                 
                 }}>
@@ -87,7 +93,7 @@ export default class Control extends Component {
                 <View style={{ flex: 4 }}>
                     <TouchableOpacity style={styles.left}
                         onPressIn={() => {
-                            this.setState({ cmd: 'left' }, () => this.addCmd())
+                            this.setState({ cmd: 'left' }, () => this.addCmd(this.state.cmd))
                         }}
                         onPressOut={this.stopTimer}>
                         <Image source={require('../images/left.png')}
@@ -191,6 +197,7 @@ export default class Control extends Component {
                 ></Slider>
                 </View> */}
             </View>
+            </View>
         );
     }
 }
@@ -234,6 +241,7 @@ const styles = StyleSheet.create({
     console: {
         flex: 3,
         backgroundColor: 'black',
+        
     },
     slider: {
         marginRight: -100,
@@ -278,3 +286,10 @@ var customStyles2 = StyleSheet.create({
         borderWidth: 2,
     }
 });
+function mapStateToProps(state){
+    return{
+        ipValue: state.ip
+    };
+}
+
+export default connect(mapStateToProps)(Control);

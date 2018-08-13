@@ -39,7 +39,7 @@ export default class App extends Component {
           renderSelectedIcon={() =>
             <Image source={require('./src/images/homeGreen.png')} />}
           onPress={() => this.setState({ selectedTab: 'home' })}>
-          <Home setIp={this.setIpAddress.bind(this)} />
+          <Home  />
         </TabNavigator.Item>
         <TabNavigator.Item
           selected={this.state.selectedTab === 'control'}
@@ -47,8 +47,7 @@ export default class App extends Component {
           renderIcon={() => <Image source={require('./src/images/controlDark.png')} />}
           renderSelectedIcon={() => <Image source={require('./src/images/controlGreen.png')} />}
           onPress={() => this.setState({ selectedTab: 'control' })}>
-          <Control ipaddress={this.state.ipaddress}
-                  port ={this.state.port} />
+          <Control  />
         </TabNavigator.Item>
         <TabNavigator.Item
           selected={this.state.selectedTab === 'info'}

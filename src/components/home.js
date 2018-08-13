@@ -8,7 +8,9 @@ import {
     TouchableOpacity,
 } from 'react-native';
 
-export default class Home extends Component {
+import {setIp} from '../redux/action'
+import { connect } from 'react-redux';
+class Home extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -17,11 +19,8 @@ export default class Home extends Component {
             response: ' ',
             contect: 'Connect',
             number: 0,
-            cmd: ''
         };
-        this.timer = null;
-        this.addOne = this.addOne.bind(this);
-        this.stopTimer = this.stopTimer.bind(this);
+
     }
 
     onPressButton = () => {
@@ -30,36 +29,10 @@ export default class Home extends Component {
             response: this.state.contect === 'Disconnect' ? 'disonnect' : 'connect',
         });
     }
-    addOne() {
-        console.log('test1' + this.state.cmd);
-        this.timer = setTimeout(this.addOne, 200);
-        fetch("http://192.168.1.23/cmd/" + this.state.cmd
-            , {
-                method: 'post',
-                dataType: 'json',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson['cmd']);
-                this.setState({
-                    console: "Request: " + 'cmd' + "   Response: " +
-                        responseJson['cmd'] + "\n"
-                        + this.state.console
-                });
-            }
-            ).catch((e) => {
-                this.setState({
-                    console: "Request: " + 'cmd' + "   Response: NG" + "\n"
-                        + this.state.console
-                });
-            })
-    }
-    stopTimer() {
-        clearTimeout(this.timer);
+    
+    setIpaddress(ip){
+        this.props.setIp(ip);
+
     }
 
 
@@ -72,7 +45,7 @@ export default class Home extends Component {
                     placeholder="Ip address"
                     onChangeText={(ip) => {
                         this.setState({ ip });
-                        this.props.setIp(ip);
+                        this.setIpaddress(ip);
                     }}
                     value={this.state.ip}
                 />
@@ -81,7 +54,7 @@ export default class Home extends Component {
                     placeholder="Port"
                     onChangeText={(port) => {
                         this.setState({ port })
-                        this.props.setIp(port)
+                        this.setIpaddress(port)
                     }}
 
                     value={this.state.port}
@@ -94,16 +67,6 @@ export default class Home extends Component {
                 <Text style={styles.connect}>
                     Status: {this.state.response}
                 </Text>
-                <TouchableOpacity
-                    onPressIn={() => {
-                        this.setState({ cmd: 'top' })
-                        this.addOne()
-                    }}
-                    onPressOut={this.stopTimer}>
-                    <Text style={styles.connect}>
-                        Test
-                </Text>
-                </TouchableOpacity>
             </View>
         );
     }
@@ -136,3 +99,5 @@ const styles = StyleSheet.create({
         color: '#511F90'
     }
 });
+
+export default connect(null, {setIp} )(Home);
